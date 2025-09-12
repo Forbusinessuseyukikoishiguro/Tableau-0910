@@ -1,0 +1,512 @@
+# 新人エンジニア実践チートシート 🚀
+
+## 1. 記号の読み方とキーボード操作
+
+### よく使う記号一覧
+| 記号 | 読み方 | 日本語キーボード | 用途 |
+|------|-------|----------------|------|
+| `!` | エクスクラメーション | `Shift` + `1` | 否定演算子 |
+| `"` | ダブルクォート | `Shift` + `2` | 文字列 |
+| `#` | シャープ | `Shift` + `3` | コメント |
+| `$` | ドル | `Shift` + `4` | jQuery、変数 |
+| `%` | パーセント | `Shift` + `5` | 剰余演算子 |
+| `&` | アンド | `Shift` + `6` | 論理AND |
+| `'` | シングルクォート | `7` | 文字列 |
+| `(` `)` | 丸括弧 | `Shift` + `8`, `9` | 関数、条件 |
+| `=` | イコール | `Shift` + `へ` | 代入 |
+| `~` | チルダ | `Shift` + `^` | 否定演算子 |
+| `-` | ハイフン | `-`（ほキー） | 減算 |
+| `_` | アンダースコア | `Shift` + `-` | 変数名 |
+| `^` | キャレット | `Shift` + `へ` | べき乗 |
+| `\` | バックスラッシュ | `¥` | エスケープ |
+| `[` `]` | 角括弧 | `@`, `[` | 配列 |
+| `{` `}` | 波括弧 | `Shift` + `@`, `[` | オブジェクト |
+| `:` | コロン | `Shift` + `け` | オブジェクト |
+| `;` | セミコロン | `け` | 文終端 |
+| `<` `>` | 不等号 | `Shift` + `,`, `.` | 比較演算子 |
+| `?` | クエスチョン | `Shift` + `/` | 三項演算子 |
+
+## 2. JavaScript基礎文法
+
+### 2.1 変数宣言（必須知識）
+```javascript
+// ✅ 推奨：基本的にconstを使う
+const userName = '田中太郎'  // 変更不可
+const userAge = 25
+
+// ✅ 値を変更する場合のみlet
+let counter = 0
+counter = counter + 1  // OK
+
+// ❌ 非推奨：varは使わない
+var oldStyle = 'avoid'
+```
+
+**覚え方：「基本const、変更必要ならlet、varは封印」**
+
+### 2.2 データ型の基本
+```javascript
+// 文字列（String）
+const message = "こんにちは"
+const template = `名前: ${userName}`  // テンプレートリテラル
+
+// 数値（Number）
+const price = 1000
+const tax = price * 0.1
+
+// 真偽値（Boolean）
+const isLoggedIn = true
+const isGuest = false
+
+// 配列（Array）
+const fruits = ['りんご', 'バナナ', 'みかん']
+console.log(fruits[0])  // りんご（0から始まる）
+console.log(fruits.length)  // 3
+
+// オブジェクト（Object）
+const user = {
+  name: '田中太郎',
+  age: 25,
+  email: 'tanaka@example.com'
+}
+console.log(user.name)  // 田中太郎
+```
+
+### 2.3 関数の書き方
+```javascript
+// 従来の関数
+function greet(name) {
+  return `こんにちは、${name}さん`
+}
+
+// アロー関数（モダンな書き方）
+const greet2 = (name) => `こんにちは、${name}さん`
+
+// 呼び出し
+const message = greet('田中')  // "こんにちは、田中さん"
+```
+
+### 2.4 条件分岐
+```javascript
+// if文
+if (userAge >= 20) {
+  console.log('成人です')
+} else if (userAge >= 13) {
+  console.log('未成年です') 
+} else {
+  console.log('子供です')
+}
+
+// 三項演算子（短縮形）
+const status = userAge >= 20 ? '成人' : '未成年'
+```
+
+### 2.5 ループ処理
+```javascript
+// 配列のループ（推奨）
+for (const fruit of fruits) {
+  console.log(fruit)  // りんご、バナナ、みかん
+}
+
+// インデックス付きループ
+fruits.forEach((fruit, index) => {
+  console.log(`${index}: ${fruit}`)  // 0: りんご
+})
+
+// 従来のforループ
+for (let i = 0; i < fruits.length; i++) {
+  console.log(fruits[i])
+}
+```
+
+## 3. 配列メソッド（実務必須）
+
+### 3.1 基本メソッド
+```javascript
+const numbers = [1, 2, 3, 4, 5]
+
+// filter: 条件に合う要素だけを抽出
+const evenNumbers = numbers.filter(num => num % 2 === 0)
+// 結果: [2, 4]
+
+// map: 各要素を変換
+const doubled = numbers.map(num => num * 2)
+// 結果: [2, 4, 6, 8, 10]
+
+// find: 条件に合う最初の要素を取得
+const found = numbers.find(num => num > 3)
+// 結果: 4
+
+// includes: 要素が含まれているかチェック
+const hasThree = numbers.includes(3)  // true
+```
+
+### 3.2 配列の安全な操作
+```javascript
+// ❌ 危険：要素が見つからない場合エラー
+const item = items.filter(x => x.id === 1)[0]  // エラーの可能性
+
+// ✅ 安全：存在チェック付き
+const filtered = items.filter(x => x.id === 1)
+if (filtered.length > 0) {
+  const item = filtered[0]  // 安全
+}
+
+// ✅ より安全：find使用
+const item = items.find(x => x.id === 1)
+if (item) {
+  // 見つかった場合の処理
+}
+```
+
+## 4. 非同期処理（重要）
+
+### 4.1 Promise・async/await
+```javascript
+// ❌ 古い書き方（コールバック地獄）
+fetch('/api/user')
+  .then(response => response.json())
+  .then(data => {
+    console.log(data)
+  })
+
+// ✅ モダンな書き方
+async function getUser() {
+  try {
+    const response = await fetch('/api/user')
+    const data = await response.json()
+    console.log(data)
+  } catch (error) {
+    console.error('エラー:', error)
+  }
+}
+```
+
+### 4.2 DOM操作での非同期
+```javascript
+// Vue.jsでの例
+async function updateUI() {
+  // 1. データを変更
+  this.userList = newData
+  
+  // 2. DOMの更新を待つ
+  await this.$nextTick()
+  
+  // 3. 更新後の処理
+  console.log('画面更新完了')
+}
+```
+
+## 5. オブジェクト操作
+
+### 5.1 プロパティアクセス
+```javascript
+const user = { name: '田中', age: 25 }
+
+// ドット記法
+console.log(user.name)  // 田中
+
+// ブラケット記法
+console.log(user['age'])  // 25
+
+// 動的なプロパティ名
+const key = 'name'
+console.log(user[key])  // 田中
+```
+
+### 5.2 分割代入（便利）
+```javascript
+// 配列の分割代入
+const [first, second] = ['りんご', 'バナナ']
+console.log(first)  // りんご
+
+// オブジェクトの分割代入
+const { name, age } = user
+console.log(name)  // 田中
+
+// デフォルト値付き
+const { email = 'なし' } = user
+console.log(email)  // なし
+```
+
+### 5.3 オプショナルチェーニング（ES2020）
+```javascript
+// ❌ エラーが起きる可能性
+console.log(user.address.city)  // user.addressがundefinedならエラー
+
+// ✅ 安全なアクセス
+console.log(user.address?.city)  // undefinedが返る
+
+// ネストが深い場合
+console.log(user?.profile?.social?.twitter?.handle)
+```
+
+## 6. Vue.js基礎
+
+### 6.1 コンポーネントの基本
+```javascript
+// Vue 3 Composition API
+<script setup>
+import { ref, computed } from 'vue'
+
+// リアクティブな変数
+const count = ref(0)
+const message = ref('Hello')
+
+// 計算プロパティ
+const doubledCount = computed(() => count.value * 2)
+
+// メソッド
+const increment = () => {
+  count.value++
+}
+</script>
+
+<template>
+  <div>
+    <p>{{ message }}</p>
+    <p>カウント: {{ count }}</p>
+    <p>2倍: {{ doubledCount }}</p>
+    <button @click="increment">+1</button>
+  </div>
+</template>
+```
+
+### 6.2 よく使うディレクティブ
+```html
+<!-- 条件表示 -->
+<div v-if="isVisible">表示される</div>
+<div v-else>表示されない</div>
+
+<!-- ループ -->
+<li v-for="item in items" :key="item.id">
+  {{ item.name }}
+</li>
+
+<!-- イベント処理 -->
+<button @click="handleClick">クリック</button>
+<input @input="handleInput" v-model="inputValue">
+
+<!-- クラス・スタイル -->
+<div :class="{ active: isActive }">動的クラス</div>
+<div :style="{ color: textColor }">動的スタイル</div>
+```
+
+## 7. テスト基礎（Jest）
+
+### 7.1 基本的なテスト
+```javascript
+// 基本のテスト構造
+describe('計算機のテスト', () => {
+  it('足し算が正しく動作する', () => {
+    const result = add(2, 3)
+    expect(result).toBe(5)
+  })
+  
+  it('0で割るとエラーになる', () => {
+    expect(() => divide(10, 0)).toThrow()
+  })
+})
+```
+
+### 7.2 よく使うMatcher
+```javascript
+// 等価性
+expect(actual).toBe(expected)         // 厳密等価（===）
+expect(actual).toEqual(expected)      // オブジェクトの内容比較
+expect(actual).not.toBe(unwanted)     // 等しくない
+
+// 真偽値
+expect(value).toBeTruthy()    // truthy
+expect(value).toBeFalsy()     // falsy
+expect(value).toBeNull()      // null
+expect(value).toBeUndefined() // undefined
+
+// 数値
+expect(number).toBeGreaterThan(3)           // > 3
+expect(number).toBeGreaterThanOrEqual(3)    // >= 3
+expect(number).toBeLessThan(5)              // < 5
+
+// 文字列・配列
+expect(string).toContain('部分文字列')
+expect(array).toContain(item)
+expect(array).toHaveLength(3)
+```
+
+## 8. Git基本コマンド
+
+### 8.1 日常的に使うコマンド
+```bash
+# 基本的な流れ
+git status              # 状態確認
+git add .               # 全ファイルをステージング
+git add ファイル名       # 特定ファイルをステージング
+git commit -m "修正内容" # コミット
+git push                # リモートに送信
+
+# ブランチ操作
+git branch              # ブランチ一覧
+git checkout -b new-feature  # 新ブランチ作成・切替
+git checkout main       # ブランチ切替
+git merge feature-branch # マージ
+
+# 履歴確認
+git log --oneline       # コミット履歴（簡潔）
+git diff                # 変更差分確認
+```
+
+### 8.2 トラブル対応
+```bash
+# 間違えた場合
+git reset --soft HEAD~1 # 直前のコミットを取り消し（変更は残る）
+git reset --hard HEAD~1 # 直前のコミットを完全に取り消し
+
+# ファイルの復元
+git checkout -- ファイル名  # 変更を取り消し
+git clean -f            # 新規ファイルを削除
+
+# リモートから最新を取得
+git pull                # フェッチ + マージ
+git fetch               # フェッチのみ
+```
+
+## 9. デバッグ・トラブルシューティング
+
+### 9.1 console.logの活用
+```javascript
+// 基本的なログ出力
+console.log('変数の値:', variable)
+console.log('オブジェクト:', { user, count, isActive })
+
+// より見やすいログ
+console.log('\n=== デバッグ開始 ===')
+console.log(`ユーザー名: ${user.name}`)
+console.log(`年齢: ${user.age}`)
+console.log('=== デバッグ終了 ===\n')
+
+// 条件付きログ
+if (isDevelopment) {
+  console.log('開発環境でのみ表示')
+}
+```
+
+### 9.2 よくあるエラーと対処法
+```javascript
+// TypeError: Cannot read property 'xxx' of undefined
+// → オプショナルチェーニングで対処
+const value = obj?.property?.subProperty
+
+// ReferenceError: xxx is not defined
+// → 変数名のタイポをチェック
+
+// SyntaxError: Unexpected token
+// → 括弧や引用符の閉じ忘れをチェック
+
+// Promise rejection
+// → try-catch文で例外処理
+try {
+  const result = await someAsyncFunction()
+} catch (error) {
+  console.error('エラーが発生:', error)
+}
+```
+
+## 10. 実務で使える小技集
+
+### 10.1 配列・オブジェクト操作
+```javascript
+// 配列の重複除去
+const unique = [...new Set(array)]
+
+// オブジェクトのキー一覧
+const keys = Object.keys(obj)
+
+// 配列が空かチェック
+if (array.length === 0) { /* 空 */ }
+
+// 文字列から数値抽出
+const number = parseInt(text.replace(/[^\d]/g, ''))
+// "1,000円" → 1000
+```
+
+### 10.2 日付操作
+```javascript
+// 現在日時
+const now = new Date()
+
+// フォーマット
+const formatted = now.toLocaleDateString('ja-JP')
+// "2025/4/2"
+
+// ISO形式
+const iso = now.toISOString()
+// "2025-04-02T10:30:00.000Z"
+```
+
+### 10.3 文字列操作
+```javascript
+// 空文字チェック
+if (str.trim().length === 0) { /* 空 */ }
+
+// 置換
+const result = text.replace(/古い/g, '新しい')  // 全置換
+
+// 分割
+const parts = csv.split(',')
+
+// 結合
+const joined = array.join(', ')
+```
+
+## 11. VS Code便利機能
+
+### 11.1 必須ショートカット
+| 機能 | Windows | Mac |
+|------|---------|-----|
+| ファイル検索 | `Ctrl` + `P` | `Cmd` + `P` |
+| 文字列検索 | `Ctrl` + `F` | `Cmd` + `F` |
+| 置換 | `Ctrl` + `H` | `Cmd` + `Option` + `F` |
+| 全体検索 | `Ctrl` + `Shift` + `F` | `Cmd` + `Shift` + `F` |
+| コマンドパレット | `Ctrl` + `Shift` + `P` | `Cmd` + `Shift` + `P` |
+| 複数行編集 | `Alt` + クリック | `Option` + クリック |
+
+### 11.2 おすすめ拡張機能
+- **Auto Rename Tag**: HTMLタグの自動リネーム
+- **Bracket Pair Colorizer**: 括弧の色分け
+- **GitLens**: Git履歴の可視化
+- **Vue Language Features**: Vue.js開発支援
+- **Prettier**: コード整形
+- **ESLint**: JavaScriptの品質チェック
+
+## 12. よくある新人の疑問Q&A
+
+### Q1: constとletの使い分けは？
+**A**: 基本的にconstを使い、値を変更する必要がある時だけletを使う。varは使わない。
+
+### Q2: `===`と`==`の違いは？
+**A**: `===`は厳密比較（型も含めて比較）、`==`は緩い比較。常に`===`を使う。
+
+### Q3: アロー関数と普通の関数の違いは？
+**A**: アロー関数は短く書けて、thisの挙動が異なる。基本的にアロー関数を使う。
+
+### Q4: awaitを付け忘れるとどうなる？
+**A**: 非同期処理が完了する前に次の処理が実行される。Promiseオブジェクトが返される。
+
+### Q5: エラーが出たらまず何を確認すべき？
+**A**: 
+1. エラーメッセージをよく読む
+2. タイポがないかチェック
+3. console.logで変数の値を確認
+4. ブラウザの開発者ツールを確認
+
+## まとめ
+
+このチートシートの内容を押さえれば、実務の基本的なタスクは対応できます！
+
+**学習の進め方：**
+1. **基礎文法を手を動かして練習**
+2. **小さなプロジェクトで実践**
+3. **エラーを恐れずに挑戦**
+4. **わからないことはすぐに調べる・質問する**
+
+頑張ってください！ 🎉
