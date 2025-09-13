@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>進捗管理 Excelデモデータ - Tableau Public用</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+        .data-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 5px solid #3498db;
+        }
+        .data-section h3 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: 0.9em;
+        }
+        th {
+            background: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        tr:hover {
+            background: #e8f4f8;
+        }
+        .status-completed { background: #2ecc71; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; }
+        .status-progress { background: #f39c12; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; }
+        .status-delayed { background: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; }
+        .status-notstarted { background: #95a5a6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; }
+        .download-section {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border-radius: 8px;
+            color: white;
+        }
+        .download-btn {
+            background: white;
+            color: #27ae60;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .tableau-tips {
+            background: linear-gradient(135deg, #ff7675, #fd79a8);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .tableau-tips h4 {
+            margin-top: 0;
+        }
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .tip-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 進捗管理用Excelデモデータ</h1>
+            <p>Tableau Publicで即座に使える実践的なサンプルデータセット</p>
+        </div>
+
+        <div class="download-section">
+            <h3>🚀 データセットをダウンロード</h3>
+            <p>以下のボタンからExcelファイルをダウンロードして、Tableau Publicにアップロードしてください</p>
+            <button class="download-btn" onclick="downloadExcel()">📥 Excelファイルをダウンロード</button>
+            <button class="download-btn" onclick="downloadCSV()">📄 CSVファイルをダウンロード</button>
+        </div>
+
+        <div class="data-section">
+            <h3>📋 メインテーブル: プロジェクトタスク</h3>
+            <table id="mainTable">
+                <thead>
+                    <tr>
+                        <th>タスクID</th>
+                        <th>プロジェクト</th>
+                        <th>タスク名</th>
+                        <th>フェーズ</th>
+                        <th>担当者</th>
+                        <th>開始日</th>
+                        <th>終了予定日</th>
+                        <th>実終了日</th>
+                        <th>進捗率</th>
+                        <th>ステータス</th>
+                        <th>優先度</th>
+                        <th>予定工数</th>
+                        <th>実績工数</th>
+                        <th>部署</th>
+                    </tr>
+                </thead>
+                <tbody id="mainTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="data-section">
+            <h3>👥 サブテーブル: チームメンバー</h3>
+            <table id="memberTable">
+                <thead>
+                    <tr>
+                        <th>担当者ID</th>
+                        <th>担当者名</th>
+                        <th>部署</th>
+                        <th>役職</th>
+                        <th>スキルレベル</th>
+                        <th>時給単価</th>
+                        <th>稼働率</th>
+                    </tr>
+                </thead>
+                <tbody id="memberTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tableau-tips">
+            <h4>🎯 Tableau Publicでの活用Tips</h4>
+            <div class="tips-grid">
+                <div class="tip-item">
+                    <strong>1. データ接続</strong><br>
+                    「Connect to Data」→「Microsoft Excel」を選択
+                </div>
+                <div class="tip-item">
+                    <strong>2. 推奨チャート</strong><br>
+                    ガントチャート、バーンダウン、進捗メーター
+                </div>
+                <div class="tip-item">
+                    <strong>3. 計算フィールド例</strong><br>
+                    遅延日数: DATEDIFF('day',[終了予定日],TODAY())
+                </div>
+                <div class="tip-item">
+                    <strong>4. フィルター設定</strong><br>
+                    プロジェクト、期間、担当者、ステータス
+                </div>
+            </div>
+        </div>
+
+        <div class="data-section">
+            <h3>📈 想定される分析パターン</h3>
+            <ul>
+                <li><strong>進捗分析</strong>: フェーズ別・プロジェクト別の進捗状況</li>
+                <li><strong>リソース分析</strong>: 担当者別の作業負荷と稼働状況</li>
+                <li><strong>予実管理</strong>: 予定工数vs実績工数の比較</li>
+                <li><strong>遅延分析</strong>: 遅延要因とボトルネックの特定</li>
+                <li><strong>コスト分析</strong>: 部署別・プロジェクト別のコスト配分</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // デモデータ生成
+        const projects = ['ECサイトリニューアル', 'CRMシステム導入', 'データ分析基盤構築', 'セキュリティ強化', 'モバイルアプリ開発'];
+        const phases = ['要件定義', '設計', '開発', 'テスト', 'リリース'];
+        const members = ['田中太郎', '佐藤花子', '鈴木一郎', '山田美咲', '伊藤健太', '中村さくら', '小林直樹', '高橋愛', '渡辺大輔', '松本結衣'];
+        const departments = ['開発部', 'システム部', 'プロジェクト推進部'];
+        const statuses = ['完了', '進行中', '遅延', '未開始'];
+        const priorities = ['高', '中', '低'];
+
+        // メインデータ生成
+        const mainData = [];
+        for (let i = 1; i <= 50; i++) {
+            const startDate = new Date(2024, Math.floor(Math.random() * 3), Math.floor(Math.random() * 28) + 1);
+            const duration = Math.floor(Math.random() * 30) + 5;
+            const endDate = new Date(startDate.getTime() + duration * 24 * 60 * 60 * 1000);
+            const progress = Math.floor(Math.random() * 100);
+            const status = progress === 100 ? '完了' : progress > 0 ? '進行中' : '未開始';
+            
+            mainData.push({
+                タスクID: `T${String(i).padStart(3, '0')}`,
+                プロジェクト: projects[Math.floor(Math.random() * projects.length)],
+                タスク名: `タスク${i}_${phases[Math.floor(Math.random() * phases.length)]}`,
+                フェーズ: phases[Math.floor(Math.random() * phases.length)],
+                担当者: members[Math.floor(Math.random() * members.length)],
+                開始日: startDate.toISOString().split('T')[0],
+                終了予定日: endDate.toISOString().split('T')[0],
+                実終了日: status === '完了' ? new Date(endDate.getTime() + (Math.random() - 0.5) * 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] : '',
+                進捗率: progress,
+                ステータス: status,
+                優先度: priorities[Math.floor(Math.random() * priorities.length)],
+                予定工数: Math.floor(Math.random() * 40) + 8,
+                実績工数: Math.floor(Math.random() * 45) + 5,
+                部署: departments[Math.floor(Math.random() * departments.length)]
+            });
+        }
+
+        // メンバーデータ生成
+        const memberData = members.map((member, index) => ({
+            担当者ID: `M${String(index + 1).padStart(3, '0')}`,
+            担当者名: member,
+            部署: departments[Math.floor(Math.random() * departments.length)],
+            役職: ['主任', '係長', '課長', 'マネージャー'][Math.floor(Math.random() * 4)],
+            スキルレベル: ['初級', '中級', '上級', 'エキスパート'][Math.floor(Math.random() * 4)],
+            時給単価: Math.floor(Math.random() * 3000) + 2000,
+            稼働率: Math.floor(Math.random() * 40) + 60
+        }));
+
+        // テーブル表示
+        function renderTable(data, tableBodyId) {
+            const tbody = document.getElementById(tableBodyId);
+            tbody.innerHTML = '';
+            
+            data.slice(0, 10).forEach(row => {
+                const tr = document.createElement('tr');
+                Object.values(row).forEach(value => {
+                    const td = document.createElement('td');
+                    if (typeof value === 'string' && ['完了', '進行中', '遅延', '未開始'].includes(value)) {
+                        const statusClass = {
+                            '完了': 'status-completed',
+                            '進行中': 'status-progress',
+                            '遅延': 'status-delayed',
+                            '未開始': 'status-notstarted'
+                        }[value];
+                        td.innerHTML = `<span class="${statusClass}">${value}</span>`;
+                    } else {
+                        td.textContent = value;
+                    }
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+        }
+
+        renderTable(mainData, 'mainTableBody');
+        renderTable(memberData, 'memberTableBody');
+
+        // Excelダウンロード
+        function downloadExcel() {
+            const wb = XLSX.utils.book_new();
+            
+            // メインデータシート
+            const ws1 = XLSX.utils.json_to_sheet(mainData);
+            XLSX.utils.book_append_sheet(wb, ws1, "プロジェクトタスク");
+            
+            // メンバーデータシート
+            const ws2 = XLSX.utils.json_to_sheet(memberData);
+            XLSX.utils.book_append_sheet(wb, ws2, "チームメンバー");
+            
+            // マスターデータシート
+            const masterData = [
+                {項目: 'プロジェクト', 値: projects.join(', ')},
+                {項目: 'フェーズ', 値: phases.join(', ')},
+                {項目: 'ステータス', 値: statuses.join(', ')},
+                {項目: '優先度', 値: priorities.join(', ')},
+                {項目: '部署', 値: departments.join(', ')}
+            ];
+            const ws3 = XLSX.utils.json_to_sheet(masterData);
+            XLSX.utils.book_append_sheet(wb, ws3, "マスターデータ");
+            
+            XLSX.writeFile(wb, "プロジェクト進捗管理_デモデータ.xlsx");
+        }
+
+        // CSVダウンロード
+        function downloadCSV() {
+            const csv = convertToCSV(mainData);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'プロジェクト進捗管理_デモデータ.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function convertToCSV(data) {
+            const headers = Object.keys(data[0]);
+            const csvHeaders = headers.join(',');
+            const csvRows = data.map(row => 
+                headers.map(header => `"${row[header]}"`).join(',')
+            );
+            return csvHeaders + '\n' + csvRows.join('\n');
+        }
+    </script>
+</body>
+</html>
