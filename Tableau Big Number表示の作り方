@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau Big Number表示の作り方</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #3498db;
+        }
+        .step {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-left: 5px solid #3498db;
+            border-radius: 5px;
+        }
+        .step h3 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .demo-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .big-number-demo {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .big-number-value {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 10px 0;
+            font-family: 'Arial', sans-serif;
+        }
+        .big-number-label {
+            font-size: 1em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        .tableau-interface {
+            background: #f1f3f4;
+            border: 2px solid #dadce0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            font-family: 'Arial', sans-serif;
+        }
+        .tableau-shelf {
+            background: white;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+        }
+        .tableau-field {
+            background: #1f77b4;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin-right: 10px;
+            font-size: 0.9em;
+        }
+        .tableau-calculated {
+            background: #ff7f0e;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin-right: 10px;
+            font-size: 0.9em;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #856404;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #155724;
+        }
+        .screenshot-placeholder {
+            background: #e9ecef;
+            border: 2px dashed #adb5bd;
+            border-radius: 5px;
+            padding: 40px;
+            text-align: center;
+            margin: 15px 0;
+            color: #6c757d;
+        }
+        ol {
+            counter-reset: step-counter;
+            list-style: none;
+            padding-left: 0;
+        }
+        ol li {
+            counter-increment: step-counter;
+            margin: 15px 0;
+            padding-left: 40px;
+            position: relative;
+        }
+        ol li::before {
+            content: counter(step-counter);
+            background: #3498db;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Tableau Big Number表示の作り方</h1>
+            <p>完了タスク数を「18/25」形式で表示する方法を図解で解説</p>
+        </div>
+
+        <!-- デモ表示 -->
+        <div class="step">
+            <h3>🎯 完成イメージ</h3>
+            <p>まず、作成する Big Number表示の完成形を見てみましょう：</p>
+            
+            <div class="demo-container">
+                <div class="big-number-demo">
+                    <div class="big-number-label">完了タスク数</div>
+                    <div class="big-number-value">18/25</div>
+                    <div style="font-size: 0.8em; opacity: 0.8;">72% 完了</div>
+                </div>
+                
+                <div class="big-number-demo" style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);">
+                    <div class="big-number-label">遅延タスク</div>
+                    <div class="big-number-value">3</div>
+                    <div style="font-size: 0.8em; opacity: 0.8;">要対応</div>
+                </div>
+                
+                <div class="big-number-demo" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+                    <div class="big-number-label">予算消化率</div>
+                    <div class="big-number-value">68%</div>
+                    <div style="font-size: 0.8em; opacity: 0.8;">残り32%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ステップ1: 計算フィールドの作成 -->
+        <div class="step">
+            <h3>📝 ステップ1: 計算フィールドを作成</h3>
+            <p>まず、完了タスク数と総タスク数を計算するフィールドを作ります。</p>
+
+            <h4>1-1. 完了タスク数の計算フィールド</h4>
+            <ol>
+                <li><strong>右クリック</strong>でデータペインの空白部分を選択</li>
+                <li><strong>「計算フィールドの作成」</strong>をクリック</li>
+                <li><strong>名前</strong>: 「完了タスク数」と入力</li>
+                <li><strong>計算式</strong>を以下のように入力：</li>
+            </ol>
+
+            <div class="code-block">
+COUNT(IF [ステータス] = "完了" THEN 1 END)</div>
+
+            <div class="warning">
+                <strong>💡 解説:</strong><br>
+                • <code>IF [ステータス] = "完了" THEN 1 END</code>: ステータスが「完了」なら1、そうでなければNULL<br>
+                • <code>COUNT()</code>: NULLでない値（つまり1）をカウント<br>
+                • 結果：完了したタスクの個数が計算される
+            </div>
+
+            <h4>1-2. 総タスク数の計算フィールド</h4>
+            <ol>
+                <li>同様に<strong>「計算フィールドの作成」</strong>をクリック</li>
+                <li><strong>名前</strong>: 「総タスク数」と入力</li>
+                <li><strong>計算式</strong>を以下のように入力：</li>
+            </ol>
+
+            <div class="code-block">COUNT([タスクID])</div>
+
+            <h4>1-3. 表示用テキストの計算フィールド</h4>
+            <ol>
+                <li>再び<strong>「計算フィールドの作成」</strong>をクリック</li>
+                <li><strong>名前</strong>: 「完了状況テキスト」と入力</li>
+                <li><strong>計算式</strong>を以下のように入力：</li>
+            </ol>
+
+            <div class="code-block">STR([完了タスク数]) + "/" + STR([総タスク数])</div>
+
+            <div class="warning">
+                <strong>💡 解説:</strong><br>
+                • <code>STR()</code>: 数値を文字列に変換<br>
+                • <code>+</code>: 文字列の連結<br>
+                • 結果：「18/25」のような文字列が作成される
+            </div>
+        </div>
+
+        <!-- ステップ2: ワークシートの設定 -->
+        <div class="step">
+            <h3>🎨 ステップ2: Big Numberワークシートの設定</h3>
+
+            <h4>2-1. 新しいワークシートを作成</h4>
+            <ol>
+                <li>下部の<strong>「新しいワークシート」</strong>タブをクリック</li>
+                <li>ワークシート名を<strong>「完了タスク数」</strong>に変更</li>
+            </ol>
+
+            <h4>2-2. フィールドの配置</h4>
+            <div class="tableau-interface">
+                <div style="font-weight: bold; margin-bottom: 10px;">Tableauのシェルフ配置:</div>
+                
+                <div class="tableau-shelf">
+                    <strong>テキスト:</strong>
+                    <div class="tableau-calculated">完了状況テキスト</div>
+                </div>
+            </div>
+
+            <ol>
+                <li><strong>「完了状況テキスト」</strong>計算フィールドを<strong>テキスト</strong>シェルフにドラッグ</li>
+                <li>他のシェルフ（行、列など）は空のままにしておく</li>
+            </ol>
+
+            <div class="screenshot-placeholder">
+                📸 この時点で「18/25」のような数字が表示されるはずです
+            </div>
+        </div>
+
+        <!-- ステップ3: 見た目の調整 -->
+        <div class="step">
+            <h3>✨ ステップ3: 見た目の調整</h3>
+
+            <h4>3-1. フォントサイズを大きくする</h4>
+            <ol>
+                <li><strong>テキスト</strong>シェルフの「完了状況テキスト」を右クリック</li>
+                <li><strong>「フォーマット」</strong>を選択</li>
+                <li><strong>フォント</strong>タブで以下を設定：
+                    <ul>
+                        <li>サイズ: <strong>36pt</strong>（またはそれ以上）</li>
+                        <li>太さ: <strong>太字</strong></li>
+                        <li>色: お好みで（例：<strong>#2c3e50</strong>）</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h4>3-2. 中央揃えにする</h4>
+            <ol>
+                <li><strong>書式</strong> → <strong>「配置」</strong>をクリック</li>
+                <li><strong>水平方向</strong>: 中央</li>
+                <li><strong>垂直方向</strong>: 中央</li>
+            </ol>
+
+            <h4>3-3. タイトルを追加</h4>
+            <ol>
+                <li>ワークシートの上部を右クリック</li>
+                <li><strong>「タイトルの表示」</strong>をチェック</li>
+                <li>タイトルをダブルクリックして<strong>「完了タスク数」</strong>と入力</li>
+            </ol>
+        </div>
+
+        <!-- ステップ4: 高度な設定 -->
+        <div class="step">
+            <h3>🚀 ステップ4: さらに高度な設定</h3>
+
+            <h4>4-1. パーセンテージも追加表示</h4>
+            <p>「18/25 (72%)」のように表示したい場合：</p>
+
+            <div class="code-block">STR([完了タスク数]) + "/" + STR([総タスク数]) + 
+" (" + STR(ROUND([完了タスク数]/[総タスク数]*100, 0)) + "%)"</div>
+
+            <h4>4-2. 条件付き色分け</h4>
+            <p>進捗状況に応じて色を変える場合：</p>
+
+            <ol>
+                <li><strong>「進捗レベル」</strong>という計算フィールドを作成：</li>
+            </ol>
+
+            <div class="code-block">IF [完了タスク数]/[総タスク数] >= 0.8 THEN "優秀"
+ELSEIF [完了タスク数]/[総タスク数] >= 0.6 THEN "良好"  
+ELSEIF [完了タスク数]/[総タスク数] >= 0.4 THEN "注意"
+ELSE "危険"
+END</div>
+
+            <ol start="2">
+                <li><strong>「進捗レベル」</strong>を<strong>色</strong>シェルフにドラッグ</li>
+                <li>色の編集で適切な色を設定（緑→黄→赤のグラデーション）</li>
+            </ol>
+
+            <h4>4-3. ツールチップのカスタマイズ</h4>
+            <ol>
+                <li><strong>ツールチップ</strong>シェルフをクリック</li>
+                <li>以下のような内容に編集：</li>
+            </ol>
+
+            <div class="code-block">完了タスク: &lt;完了タスク数&gt; 件
+総タスク: &lt;総タスク数&gt; 件
+進捗率: &lt;ROUND([完了タスク数]/[総タスク数]*100, 1)&gt;%
+
+残りタスク: &lt;総タスク数 - 完了タスク数&gt; 件</div>
+        </div>
+
+        <!-- よくある問題 -->
+        <div class="step">
+            <h3>❗ よくある問題と解決方法</h3>
+
+            <h4>問題1: 数字が表示されない</h4>
+            <div class="warning">
+                <strong>原因:</strong> データにフィルターがかかっている、またはデータ型が正しくない<br>
+                <strong>解決:</strong> 
+                <ul>
+                    <li>フィルターシェルフを確認</li>
+                    <li>データソースで「ステータス」フィールドの値を確認</li>
+                    <li>計算フィールドで「結果のプレビュー」を確認</li>
+                </ul>
+            </div>
+
+            <h4>問題2: 「18/25」ではなく「18.0/25.0」と表示される</h4>
+            <div class="warning">
+                <strong>解決:</strong> STR()の代わりにINT()を使用<br>
+                <code>STR(INT([完了タスク数])) + "/" + STR(INT([総タスク数]))</code>
+            </div>
+
+            <h4>問題3: 複数の値が表示される</h4>
+            <div class="warning">
+                <strong>原因:</strong> データの粒度が細かすぎる<br>
+                <strong>解決:</strong> 
+                <ul>
+                    <li>不要なディメンションを詳細シェルフから削除</li>
+                    <li>必要に応じてデータを集計レベルで準備</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ダッシュボードでの活用 -->
+        <div class="step">
+            <h3>📊 ダッシュボードでの活用</h3>
+
+            <h4>KPIカードとしてダッシュボードに配置</h4>
+            <ol>
+                <li><strong>新しいダッシュボード</strong>を作成</li>
+                <li>作成したワークシートをダッシュボードにドラッグ</li>
+                <li><strong>固定サイズ</strong>に設定（例：200px × 150px）</li>
+                <li>他のKPIと並べて配置</li>
+            </ol>
+
+            <div class="success">
+                <strong>💡 プロTip:</strong><br>
+                複数のBig Numberを横並びで配置する際は、<br>
+                • 統一したサイズとフォント<br>
+                • 一貫したカラーパレット<br>
+                • 分かりやすいラベル<br>
+                を心がけましょう！
+            </div>
+        </div>
+
+        <!-- まとめ -->
+        <div class="step">
+            <h3>🎯 まとめ</h3>
+            <p><strong>Big Number表示の作成手順</strong></p>
+            <ol>
+                <li><strong>計算フィールド作成</strong>：完了タスク数、総タスク数、表示テキスト</li>
+                <li><strong>ワークシート設定</strong>：テキストシェルフに配置</li>
+                <li><strong>見た目調整</strong>：フォントサイズ、中央揃え、色設定</li>
+                <li><strong>高度な機能</strong>：条件付き書式、ツールチップ</li>
+                <li><strong>ダッシュボード統合</strong>：KPIカードとして配置</li>
+            </ol>
+
+            <div class="success">
+                <strong>🎉 完成！</strong><br>
+                これで「18/25」形式のBig Number表示が作成できました。<br>
+                他のKPIについても同じ手順で作成してみてください！
+            </div>
+        </div>
+    </div>
+</body>
+</html>
